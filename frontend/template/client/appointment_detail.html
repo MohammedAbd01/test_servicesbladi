@@ -1,0 +1,764 @@
+{% extends 'client/base.html' %}
+
+{% block title %}Détails du Rendez-vous - MRE{% endblock %}
+{% block meta_description %}Détails du rendez-vous client MRE{% endblock %}
+{% block meta_keywords %}MRE, rendez-vous, détails{% endblock %}
+
+{% block content %}
+<style>
+  /* Force reset pour éviter les conflits CSS */
+  * {
+    box-sizing: border-box !important;
+  }
+  
+  /* Définition des variables si elles ne sont pas disponibles */
+  :root {
+    --primary-color: #1e3c72;
+    --secondary-color: #2a5298;
+    --accent-color: #4a6fa5;
+    --text-color: #2c3e50;
+    --light-bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+  }
+
+  /* Design moderne et esthétique pour la page de détails de rendez-vous */
+  .appointment-detail-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05) !important;
+    padding: 2.5rem !important;
+    margin-bottom: 2.5rem !important;
+    border-top: 5px solid var(--primary-color, #1e3c72) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .appointment-detail-container:hover {
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  .appointment-detail-container::before {
+    content: "" !important;
+    position: absolute !important;
+    top: -50px !important;
+    right: -50px !important;
+    width: 250px !important;
+    height: 250px !important;
+    background: radial-gradient(circle, rgba(30, 60, 114, 0.05) 0%, rgba(255, 255, 255, 0) 70%) !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+  }
+  
+  .appointment-detail-container::after {
+    content: "" !important;
+    position: absolute !important;
+    bottom: -50px !important;
+    left: -50px !important;
+    width: 200px !important;
+    height: 200px !important;
+    background: radial-gradient(circle, rgba(42, 82, 152, 0.03) 0%, rgba(255, 255, 255, 0) 70%) !important;
+    border-radius: 50% !important;
+    z-index: 0 !important;
+  }
+  
+  .appointment-title {
+    color: var(--primary-color, #1e3c72) !important;
+    font-weight: 700 !important;
+    font-size: 1.8rem !important;
+    margin-bottom: 1.5rem !important;
+    position: relative !important;
+    padding-bottom: 0.75rem !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .appointment-title::after {
+    content: "" !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 50px !important;
+    height: 3px !important;
+    background: linear-gradient(90deg, var(--primary-color, #1e3c72), var(--secondary-color, #2a5298)) !important;
+    border-radius: 30px !important;
+    transition: width 0.3s ease !important;
+  }
+  
+  .appointment-detail-container:hover .appointment-title::after {
+    width: 80px !important;
+  }
+  
+  .appointment-detail-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: 2rem !important;
+    flex-wrap: wrap !important;
+    gap: 1rem !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  
+  .appointment-status {
+    padding: 0.5rem 1.2rem !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    border-radius: 50px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .appointment-status:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12) !important;
+  }
+  
+  .status-pending {
+    background: linear-gradient(135deg, #fff7e0 0%, #fff3cd 100%) !important;
+    color: #856404 !important;
+  }
+  
+  .status-confirmed {
+    background: linear-gradient(135deg, #e3f8e9 0%, #d4edda 100%) !important;
+    color: #155724 !important;
+  }
+  
+  .status-completed {
+    background: linear-gradient(135deg, #e0f2ff 0%, #cce5ff 100%) !important;
+    color: #004085 !important;
+  }
+  
+  .status-cancelled {
+    background: linear-gradient(135deg, #fbe7e9 0%, #f8d7da 100%) !important;
+    color: #721c24 !important;
+  }
+  
+  .appointment-info-section {
+    background-color: var(--card-bg, #ffffff) !important;
+    border-radius: 12px !important;
+    padding: 1.75rem !important;
+    margin-bottom: 1.75rem !important;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.03) !important;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    position: relative !important;
+    z-index: 1 !important;
+    border: 1px solid rgba(0, 0, 0, 0.03) !important;
+  }
+  
+  .appointment-info-section:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
+    border-color: rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .section-title {
+    color: var(--primary-color, #1e3c72) !important;
+    font-weight: 600 !important;
+    font-size: 1.2rem !important;
+    margin-bottom: 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.6rem !important;
+    position: relative !important;
+  }
+  
+  .section-title i {
+    opacity: 0.85 !important;
+    transition: transform 0.3s ease !important;
+  }
+  
+  .appointment-info-section:hover .section-title i {
+    transform: scale(1.1) !important;
+  }
+  
+  .info-list {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .info-item {
+    display: flex !important;
+    margin-bottom: 1.2rem !important;
+    align-items: flex-start !important;
+    transition: transform 0.2s ease !important;
+  }
+  
+  .info-item:hover {
+    transform: translateX(3px) !important;
+  }
+  
+  .info-item:last-child {
+    margin-bottom: 0 !important;
+  }
+  
+  .info-label {
+    font-weight: 500 !important;
+    color: #6c757d !important;
+    width: 140px !important;
+    min-width: 140px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.6rem !important;
+  }
+  
+  .info-label i {
+    color: var(--primary-color, #1e3c72) !important;
+    opacity: 0.85 !important;
+    font-size: 0.95rem !important;
+    transition: transform 0.3s ease !important;
+  }
+  
+  .info-item:hover .info-label i {
+    transform: scale(1.15) !important;
+  }
+  
+  .info-value {
+    flex: 1 !important;
+    font-weight: 500 !important;
+    color: var(--text-color, #2c3e50) !important;
+  }
+  
+  .info-card {
+    background-color: var(--light-bg, #f8f9fa) !important;
+    border-left: 3px solid var(--primary-color, #1e3c72) !important;
+    padding: 1.25rem !important;
+    border-radius: 8px !important;
+    margin: 1rem 0 !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .info-card:hover {
+    background-color: #f0f4f8 !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .action-buttons {
+    display: flex !important;
+    gap: 1rem !important;
+    margin-top: 2rem !important;
+    flex-wrap: wrap !important;
+  }
+  
+  .action-btn {
+    padding: 0.75rem 1.5rem !important;
+    border-radius: 50px !important;
+    font-weight: 500 !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+  
+  .action-btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(30, 60, 114, 0.25) !important;
+  }
+  
+  .action-btn i {
+    font-size: 1.1rem !important;
+    transition: transform 0.3s ease !important;
+  }
+  
+  .action-btn:hover i {
+    transform: translateX(2px) !important;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary-color, #1e3c72), var(--secondary-color, #2a5298)) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(30, 60, 114, 0.2) !important;
+    color: white !important;
+  }
+  
+  .btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(30, 60, 114, 0.3) !important;
+    transform: translateY(-3px) !important;
+  }
+  
+  .btn-outline-primary {
+    border: 2px solid var(--primary-color, #1e3c72) !important;
+    color: var(--primary-color, #1e3c72) !important;
+    background: transparent !important;
+    position: relative !important;
+    z-index: 1 !important;
+    overflow: hidden !important;
+  }
+  
+  .btn-outline-primary::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 0 !important;
+    background-color: var(--primary-color, #1e3c72) !important;
+    transition: height 0.3s ease !important;
+    z-index: -1 !important;
+  }
+  
+  .btn-outline-primary:hover {
+    color: white !important;
+  }
+  
+  .btn-outline-primary:hover::after {
+    height: 100% !important;
+  }
+  
+  .btn-danger {
+    background: linear-gradient(135deg, #dc3545, #e05d6f) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2) !important;
+    color: white !important;
+  }
+  
+  .btn-danger:hover {
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3) !important;
+    transform: translateY(-3px) !important;
+  }
+  
+  .btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+    border: none !important;
+    color: white !important;
+  }
+  
+  .date-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    background: linear-gradient(135deg, #e0f0ff 0%, #e8f4ff 100%) !important;
+    color: var(--primary-color, #1e3c72) !important;
+    padding: 0.6rem 1.2rem !important;
+    border-radius: 50px !important;
+    font-weight: 600 !important;
+    gap: 0.5rem !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .date-badge:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(30, 60, 114, 0.1) !important;
+  }
+  
+  .date-badge i {
+    transition: transform 0.3s ease !important;
+  }
+  
+  .date-badge:hover i {
+    transform: scale(1.2) !important;
+  }
+  
+  .modal-content {
+    border-radius: 16px !important;
+    border: none !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden !important;
+  }
+  
+  .modal-header {
+    border-bottom: none !important;
+    padding: 1.75rem !important;
+    background: linear-gradient(135deg, rgba(30, 60, 114, 0.05), rgba(42, 82, 152, 0.05)) !important;
+    border-radius: 16px 16px 0 0 !important;
+  }
+  
+  .modal-body {
+    padding: 1.75rem !important;
+  }
+  
+  .modal-footer {
+    border-top: none !important;
+    padding: 1.5rem 1.75rem !important;
+    background: rgba(0, 0, 0, 0.01) !important;
+  }
+  
+  .modal-title {
+    color: var(--primary-color, #1e3c72) !important;
+    font-weight: 700 !important;
+  }
+  
+  .alert-warning {
+    background-color: #fff8e6 !important;
+    border-color: #ffe8b3 !important;
+    border-radius: 8px !important;
+    border-left: 4px solid #ffc107 !important;
+  }
+  
+  .note-section {
+    background-color: #f8f9fa !important;
+    border-radius: 10px !important;
+    padding: 1.25rem !important;
+    margin-top: 1rem !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .note-section:hover {
+    background-color: #f0f4f8 !important;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.03) !important;
+  }
+  
+  .note-section p {
+    font-style: italic !important;
+    color: #6c757d !important;
+    margin-bottom: 0 !important;
+  }
+  
+  /* Force application des styles de base */
+  .container-fluid {
+    width: 100% !important;
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+  }
+  
+  .row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-right: -15px !important;
+    margin-left: -15px !important;
+  }
+  
+  .col-lg-8 {
+    position: relative !important;
+    width: 100% !important;
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+  }
+  
+  .col-lg-4 {
+    position: relative !important;
+    width: 100% !important;
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+  }
+  
+  @media (min-width: 992px) {
+    .col-lg-8 {
+      flex: 0 0 66.666667% !important;
+      max-width: 66.666667% !important;
+    }
+    
+    .col-lg-4 {
+      flex: 0 0 33.333333% !important;
+      max-width: 33.333333% !important;
+    }
+  }
+  
+  /* Accessibilité améliorée */
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  
+  /* Remplacements Bootstrap */
+  .btn {
+    display: inline-block !important;
+    font-weight: 400 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+    user-select: none !important;
+    border: 1px solid transparent !important;
+    padding: 0.375rem 0.75rem !important;
+    font-size: 1rem !important;
+    line-height: 1.5 !important;
+    border-radius: 0.25rem !important;
+    text-decoration: none !important;
+  }
+  
+  .breadcrumb {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    padding: 0.75rem 1rem !important;
+    margin-bottom: 1rem !important;
+    list-style: none !important;
+    background-color: #e9ecef !important;
+    border-radius: 0.25rem !important;
+  }
+  
+  .breadcrumb-item + .breadcrumb-item {
+    padding-left: 0.5rem !important;
+  }
+  
+  .breadcrumb-item + .breadcrumb-item::before {
+    display: inline-block !important;
+    padding-right: 0.5rem !important;
+    color: #6c757d !important;
+    content: "/" !important;
+  }
+  
+  .breadcrumb-item.active {
+    color: #6c757d !important;
+  }
+  
+  /* Utilitaires */
+  .mb-4 {
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .py-4 {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+  }
+  
+  .d-inline-flex {
+    display: inline-flex !important;
+  }
+  
+  .justify-content-center {
+    justify-content: center !important;
+  }
+  
+  .text-center {
+    text-align: center !important;
+  }
+  
+  .mt-2 {
+    margin-top: 0.5rem !important;
+  }
+  
+  .me-2 {
+    margin-right: 0.5rem !important;
+  }
+  
+  .me-1 {
+    margin-right: 0.25rem !important;
+  }
+  
+  .ms-1 {
+    margin-left: 0.25rem !important;
+  }
+  
+  /* Icônes Bootstrap si non disponibles */
+  .bi {
+    display: inline-block !important;
+    width: 1em !important;
+    height: 1em !important;
+    font-style: normal !important;
+    font-weight: normal !important;
+    font-variant: normal !important;
+    line-height: 1 !important;
+    text-transform: none !important;
+    vertical-align: -0.125em !important;
+  }
+</style>
+
+<div class="container-fluid py-4">
+  <div class="appointment-detail-container">
+    <div class="mb-4">
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'client_dashboard' %}">Tableau de bord</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'custom_requests:client_appointments' %}">Mes Rendez-vous</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Détails</li>
+        </ol>
+      </nav>
+    </div>
+    <a href="{% url 'custom_requests:client_appointments' %}" class="btn btn-outline-primary mb-4">
+      <i class="bi bi-arrow-left me-2"></i>Retour aux rendez-vous
+    </a>
+  
+    <div class="appointment-detail-header">
+      <div>
+        <h2 class="appointment-title">Rendez-vous {{ appointment.consultation_type|default:"vidéo" }}</h2>
+        <div class="date-badge">
+          <i class="bi bi-calendar-check"></i>
+          {{ appointment.date_time|date:"d/m/Y à H:i" }}
+        </div>
+      </div>
+      <div>
+        {% if appointment.status == 'pending' %}
+          <span class="appointment-status status-pending">
+            <i class="bi bi-clock"></i> En attente de confirmation
+          </span>
+        {% elif appointment.status == 'confirmed' %}
+          <span class="appointment-status status-confirmed">
+            <i class="bi bi-check-circle"></i> Confirmé
+          </span>
+        {% elif appointment.status == 'completed' %}
+          <span class="appointment-status status-completed">
+            <i class="bi bi-trophy"></i> Terminé
+          </span>
+        {% elif appointment.status == 'cancelled' %}
+          <span class="appointment-status status-cancelled">
+            <i class="bi bi-x-circle"></i> Annulé
+          </span>
+        {% endif %}
+      </div>
+    </div>
+  
+    <div class="row">
+      <div class="col-lg-8">
+        <!-- Détails du rendez-vous -->
+        <div class="appointment-info-section">
+          <h3 class="section-title"><i class="bi bi-info-circle"></i> Informations sur le rendez-vous</h3>
+          <ul class="info-list">
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-tag"></i> Type :</span>
+              <span class="info-value">{{ appointment.consultation_type|default:"Vidéo" }}</span>
+            </li>
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-calendar-date"></i> Date :</span>
+              <span class="info-value">{{ appointment.date_time|date:"d/m/Y" }}</span>
+            </li>
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-clock"></i> Heure :</span>
+              <span class="info-value">{{ appointment.date_time|date:"H:i" }}</span>
+            </li>
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-hourglass-split"></i> Durée :</span>
+              <span class="info-value">{{ appointment.duration|default:"60" }} minutes</span>
+            </li>
+            {% if appointment.location %}
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-geo-alt"></i> Lieu :</span>
+              <span class="info-value">{{ appointment.location }}</span>
+            </li>
+            {% endif %}
+            {% if appointment.meeting_link %}
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-camera-video"></i> Lien :</span>
+              <span class="info-value">
+                <a href="{{ appointment.meeting_link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-box-arrow-up-right me-1"></i> Rejoindre la réunion
+                </a>
+              </span>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+        
+        <!-- Détails de la demande -->
+        {% if appointment.service_request %}
+        <div class="appointment-info-section">
+          <h3 class="section-title"><i class="bi bi-file-earmark-text"></i> Demande associée</h3>
+          <ul class="info-list">
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-file-earmark"></i> Demande :</span>
+              <span class="info-value">
+                <a href="{% url 'custom_requests:request_detail' appointment.service_request.id %}">{{ appointment.service_request.title }}</a>
+              </span>
+            </li>
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-chat-text"></i> Description :</span>
+              <div class="info-value info-card">
+                {{ appointment.service_request.description|linebreaks }}
+              </div>
+            </li>
+          </ul>
+        </div>
+        {% endif %}
+        
+        <!-- Notes -->
+        {% if appointment.notes %}
+        <div class="appointment-info-section">
+          <h3 class="section-title"><i class="bi bi-journal-text"></i> Notes</h3>
+          <div class="note-section">
+            <p>{{ appointment.notes|linebreaks }}</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      
+      <div class="col-lg-4">
+        <!-- Informations sur l'expert -->
+        <div class="appointment-info-section">
+          <h3 class="section-title"><i class="bi bi-person"></i> Expert</h3>
+          {% if appointment.expert %}
+          <div class="expert-profile">
+            <div class="expert-avatar">
+              <i class="bi bi-person-badge"></i>
+            </div>
+            <h4 class="expert-name">{{ appointment.expert.user.name|default:'' }} {{ appointment.expert.user.first_name|default:'' }}</h4>
+            {% if appointment.expert.specialty %}
+              <div class="expert-specialty">{{ appointment.expert.specialty }}</div>
+            {% endif %}
+          </div>
+          <ul class="info-list">
+            {% if appointment.expert.user.email %}
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-envelope"></i> Email :</span>
+              <span class="info-value">{{ appointment.expert.user.email }}</span>
+            </li>
+            {% endif %}
+            {% if appointment.expert.user.phone %}
+            <li class="info-item">
+              <span class="info-label"><i class="bi bi-telephone"></i> Téléphone :</span>
+              <span class="info-value">{{ appointment.expert.user.phone }}</span>
+            </li>
+            {% endif %}
+          </ul>
+          {% else %}
+          <div class="text-center">
+            <div class="expert-avatar">
+              <i class="bi bi-person-x"></i>
+            </div>
+            <p class="mt-2">Aucun expert assigné pour le moment</p>
+          </div>
+          {% endif %}
+        </div>
+        
+        <!-- Actions -->
+        <div class="appointment-info-section">
+          <h3 class="section-title"><i class="bi bi-gear"></i> Actions</h3>
+          <div class="action-buttons">
+            {% if appointment.status == 'pending' or appointment.status == 'confirmed' %}
+              <button type="button" class="btn btn-danger action-btn" data-bs-toggle="modal" data-bs-target="#cancelAppointmentModal">
+                <i class="bi bi-x-circle"></i> Annuler le rendez-vous
+              </button>
+            {% endif %}
+            {% if appointment.service_request %}
+              <a href="{% url 'custom_requests:request_detail' appointment.service_request.id %}" class="btn btn-outline-primary action-btn">
+                <i class="bi bi-file-earmark-text"></i> Voir la demande
+              </a>
+            {% endif %}
+            {% if appointment.meeting_link %}
+              <a href="{{ appointment.meeting_link }}" target="_blank" class="btn btn-primary action-btn">
+                <i class="bi bi-camera-video"></i> Rejoindre la réunion
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal d'annulation -->
+<div class="modal fade" id="cancelAppointmentModal" tabindex="-1" aria-labelledby="cancelAppointmentModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cancelAppointmentModalLabel">
+          <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+          Confirmer l'annulation
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Êtes-vous sûr de vouloir annuler ce rendez-vous prévu le <strong>{{ appointment.date_time|date:"d/m/Y à H:i" }}</strong> ?</p>
+        <div class="alert alert-warning">
+          <i class="bi bi-info-circle me-2"></i>
+          Cette action est irréversible. Une notification sera envoyée à l'expert concerné.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Non, garder</button>
+        <a href="{% url 'custom_requests:cancel_appointment' appointment.id %}" class="btn btn-danger">Oui, annuler</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
