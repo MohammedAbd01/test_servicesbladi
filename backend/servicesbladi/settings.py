@@ -81,6 +81,7 @@ TEMPLATES = [
                 'django.template.context_processors.i18n',  # For internationalization
                 'servicesbladi.context_processors.language_context',  # Custom context processor for language
                 'servicesbladi.context_processors.notifications_context',  # Custom context processor for notifications
+                'servicesbladi.context_processors.cache_version_context',  # Cache version processor
             ],
         },
     },
@@ -100,6 +101,10 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        },
     }
 }
 
@@ -157,6 +162,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, '../frontend/static'),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Ajouter versioning aux fichiers statiques pour éviter les problèmes de cache
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
@@ -223,4 +231,17 @@ CHANNEL_LAYERS = {
             'capacity': 1500,  # default is 100
         },
     },
+}
+
+# Paramètres de session et de cache
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Utiliser la base de données pour les sessions
+SESSION_COOKIE_AGE = 86400  # Durée de vie de la session (en secondes) - 1 jour
+SESSION_SAVE_EVERY_REQUEST = True  # Enregistrer la session à chaque requête
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expirer la session à la fermeture du navigateur
+
+# Paramètres de cache - Désactiver autant que possible
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',  # Ne pas mettre en cache
+    }
 }
