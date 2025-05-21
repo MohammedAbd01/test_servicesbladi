@@ -1,15 +1,16 @@
 from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth.models import User
+from .models import Utilisateur
 
 class UserEditForm(forms.ModelForm):
     email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    first_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    last_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    first_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    profile_picture = forms.ImageField(required=False, widget=forms.FileInput(attrs={'class': 'form-control'}))
 
     class Meta:
-        model = User
-        fields = ('first_name', 'last_name', 'email')
+        model = Utilisateur
+        fields = ('name', 'first_name', 'email', 'profile_picture')
 
 class CustomPasswordChangeForm(PasswordChangeForm):
     old_password = forms.CharField(

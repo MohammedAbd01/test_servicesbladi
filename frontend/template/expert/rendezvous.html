@@ -184,7 +184,7 @@
             <label class="form-label">Client</label>
             <select class="form-select" name="client" required>
               {% for client in clients %}
-                <option value="{{ client.id }}">{{ client.name }}</option>
+                <option value="{{ client.id }}">{{ client.user.name }} {{ client.user.first_name }}</option>
               {% endfor %}
             </select>
           </div>

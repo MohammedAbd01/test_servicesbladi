@@ -41,6 +41,7 @@ class Utilisateur(AbstractUser):
     is_verified = models.BooleanField(_('is verified'), default=False)
     registration_date = models.DateTimeField(_('registration date'), auto_now_add=True)
     account_type = models.CharField(_('account type'), max_length=20, choices=ACCOUNT_TYPES, default='client')
+    profile_picture = models.ImageField(_('profile picture'), upload_to='profile_pictures/', blank=True, null=True)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name', 'first_name']
@@ -53,6 +54,17 @@ class Utilisateur(AbstractUser):
     def get_preferred_languages_list(self):
         """Return a list of preferred languages"""
         return self.preferred_languages.split(',')
+    
+    def get_profile_picture_url(self):
+        """Return the URL of the profile picture or a default one based on account type"""
+        if self.profile_picture and hasattr(self.profile_picture, 'url'):
+            return self.profile_picture.url
+        elif self.account_type == 'expert':
+            return '/static/img/expert-default.png'
+        elif self.account_type == 'admin':
+            return '/static/img/admin-default.png'
+        else:
+            return '/static/img/client-default.png'
     
     class Meta:
         verbose_name = _('user')

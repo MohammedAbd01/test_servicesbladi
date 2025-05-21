@@ -211,9 +211,7 @@
         <h3>ServicesBLADI</h3>
       </div>
       <div class="sidebar-profile">
-        <div class="profile-icon">
-          <i class="bi bi-person-circle"></i>
-        </div>
+        <img src="{{ user.get_profile_picture_url }}" alt="Photo de profil" class="rounded-circle border border-2 border-white" style="width: 80px; height: 80px; object-fit: cover;">
         <h5 class="text-white">{{ user.name }} {{ user.first_name }}</h5>
         <p class="text-white-50">Client</p>
       </div>
@@ -278,8 +276,25 @@
               </div>
             </div>
             <div class="card-body p-4 p-xl-5">
-              <form id="userProfileForm" class="needs-validation" novalidate>
+              <form id="userProfileForm" class="needs-validation" novalidate enctype="multipart/form-data">
                 {% csrf_token %}
+                
+                <!-- Photo de profil -->
+                <h5 class="mb-3 border-bottom pb-2">Photo de profil</h5>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-4 text-center">
+                    <img src="{{ user.get_profile_picture_url }}" alt="Photo de profil" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #eee;">
+                  </div>
+                  <div class="col-md-8">
+                    <label for="profile_picture" class="form-label">Changer ma photo</label>
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-text"><i class="bi bi-image"></i></span>
+                      <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                    </div>
+                    <div class="form-text text-muted">Formats acceptés: JPG, PNG. Taille maximale: 2MB.</div>
+                  </div>
+                </div>
+                
                 <!-- Informations personnelles -->
                 <h5 class="mb-3 border-bottom pb-2">Informations personnelles</h5>
                 
@@ -576,14 +591,14 @@
             return cookieValue;
           }
           
-          // Send the data to the server using fetch API
+          // Send the data to the server using fetch API with FormData
           fetch('/accounts/api/update_profile/', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
               'X-CSRFToken': getCookie('csrftoken')
+              // Ne pas définir Content-Type pour permettre au navigateur de gérer le multipart/form-data
             },
-            body: JSON.stringify(profileData)
+            body: formData // Utiliser directement formData au lieu de JSON.stringify
           })
           .then(response => response.json())
           .then(data => {

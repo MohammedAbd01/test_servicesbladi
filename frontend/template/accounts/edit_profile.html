@@ -221,11 +221,36 @@
             <h5 class="m-0"><i class="bi bi-person-fill me-2"></i>{% trans "Informations Personnelles" %}</h5>
         </div>
         <div class="card-body">
-            <form method="post" novalidate class="profile-form">
+            <form method="post" novalidate class="profile-form" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="form_type" value="user_profile">
 
-                                <!-- Informations de base -->
+                <!-- Section photo de profil -->
+                <div class="form-section-title">
+                    <i class="bi bi-image-fill"></i>{% trans "Photo de profil" %}
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <img src="{{ user.get_profile_picture_url }}" alt="{% trans 'Photo de profil' %}" class="img-fluid rounded-circle" style="max-width: 150px; max-height: 150px; object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label for="{{ user_form.profile_picture.id_for_label }}" class="form-label">{{ user_form.profile_picture.label }}</label>
+                            {{ user_form.profile_picture }}
+                            {% if user_form.profile_picture.errors %}
+                                <div class="invalid-feedback d-block">
+                                    <i class="bi bi-exclamation-circle me-1"></i>{{ user_form.profile_picture.errors|join:", " }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">{% trans "Formats acceptés: JPG, PNG. Taille maximale: 2MB." %}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations de base -->
                 <div class="form-section-title">
                     <i class="bi bi-person-fill"></i>{% trans "Informations de base" %}
                 </div>
@@ -244,11 +269,11 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-floating mb-3">
-                            {{ user_form.last_name }}
-                            <label for="{{ user_form.last_name.id_for_label }}">{{ user_form.last_name.label }}</label>
-                            {% if user_form.last_name.errors %}
+                            {{ user_form.name }}
+                            <label for="{{ user_form.name.id_for_label }}">{{ user_form.name.label }}</label>
+                            {% if user_form.name.errors %}
                                 <div class="invalid-feedback d-block">
-                                    <i class="bi bi-exclamation-circle me-1"></i>{{ user_form.last_name.errors|join:", " }}
+                                    <i class="bi bi-exclamation-circle me-1"></i>{{ user_form.name.errors|join:", " }}
                                 </div>
                             {% endif %}
                         </div>

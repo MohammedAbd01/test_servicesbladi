@@ -32,11 +32,19 @@
           </div>
           <div class="row mb-3">
             <div class="col-md-4 fw-bold">Service:</div>
-            <div class="col-md-8">{{ service_request.service.name }}</div>
+            <div class="col-md-8">{{ service_request.service.title }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-4 fw-bold">Type de service:</div>
+            <div class="col-md-8">{{ service_type.name }}</div>
           </div>
           <div class="row mb-3">
             <div class="col-md-4 fw-bold">Client:</div>
             <div class="col-md-8">{{ service_request.client.first_name }} {{ service_request.client.name }}</div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-4 fw-bold">Téléphone du client:</div>
+            <div class="col-md-8">{{ client.phone }}</div>
           </div>
           <div class="row mb-3">
             <div class="col-md-4 fw-bold">Description:</div>
@@ -275,7 +283,7 @@
           </div>
           <div class="mb-3">
             <strong><i class="bi bi-telephone me-2"></i> Téléphone:</strong>
-            <p>{{ service_request.client.phone_number }}</p>
+            <p>{{ client.phone }}</p>
           </div>
         </div>
       </div>

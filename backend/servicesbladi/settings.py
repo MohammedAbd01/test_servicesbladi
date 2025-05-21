@@ -80,6 +80,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',  # For internationalization
                 'servicesbladi.context_processors.language_context',  # Custom context processor for language
+                'servicesbladi.context_processors.notifications_context',  # Custom context processor for notifications
             ],
         },
     },

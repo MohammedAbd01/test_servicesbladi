@@ -58,7 +58,24 @@ def create_request_view(request, service_id):
             
             # Upload documents if provided
             for file_key in request.FILES:
+                # Skip if file_key is 'files[]' as it's already processed from request.FILES.getlist('files[]')
+                if file_key == 'files[]' or '[' in file_key:
+                    continue
+                
                 file = request.FILES[file_key]
+                document = Document.objects.create(
+                    service_request=demande,
+                    uploaded_by=request.user,
+                    type='other',
+                    name=file.name,
+                    file=file,
+                    mime_type=file.content_type,
+                    file_size=file.size // 1024  # Convert to KB
+                )
+            
+            # Process files[] as list instead of individually
+            files_list = request.FILES.getlist('files[]')
+            for file in files_list:
                 document = Document.objects.create(
                     service_request=demande,
                     uploaded_by=request.user,
@@ -567,8 +584,12 @@ def expert_appointments_view(request):
         expert = Expert.objects.get(user=request.user)
         appointments = RendezVous.objects.filter(expert=expert.user).order_by('date_time')
         
+        # Get all clients to populate the dropdown in the "Add appointment" modal
+        clients = Client.objects.filter(user__is_active=True)
+        
         context = {
             'appointments': appointments,
+            'clients': clients,
         }
         
         return render(request, 'expert/rendezvous.html', context)
@@ -1055,7 +1076,24 @@ def ajax_create_request(request):
         
         # Upload documents if provided
         for file_key in request.FILES:
+            # Skip if file_key is 'files[]' as it's already processed from request.FILES.getlist('files[]')
+            if file_key == 'files[]' or '[' in file_key:
+                continue
+                
             file = request.FILES[file_key]
+            document = Document.objects.create(
+                service_request=demande,
+                uploaded_by=request.user,
+                type='other',
+                name=file.name,
+                file=file,
+                mime_type=file.content_type,
+                file_size=file.size // 1024  # Convert to KB
+            )
+            
+        # Process files[] as list instead of individually
+        files_list = request.FILES.getlist('files[]')
+        for file in files_list:
             document = Document.objects.create(
                 service_request=demande,
                 uploaded_by=request.user,

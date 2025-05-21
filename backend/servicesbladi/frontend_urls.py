@@ -23,8 +23,8 @@ from resources.client_views import client_resources_view
 # Import views from the custom_requests app for frontend URLs
 from custom_requests.dashboard_views import client_dashboard_view, expert_dashboard_view, admin_dashboard_view
 from custom_requests.views import documents_view, client_requests_view, client_appointments_view, expert_requests_view, expert_appointments_view
-from custom_requests.message_views import client_messages_view, expert_messages_view
-from custom_requests.expert_views import expert_documents_view, expert_appointments_view as expert_appointments_view_new, expert_messages_view as expert_messages_view_new, expert_resources_view, expert_requests_view, expert_request_detail, expert_send_message, expert_upload_document, expert_update_request_status, expert_schedule_appointment, expert_update_appointment, expert_take_request
+from custom_requests.message_views import client_messages_view, expert_messages_view, expert_send_message
+from custom_requests.expert_views import expert_documents_view, expert_appointments_view as expert_appointments_view_new, expert_messages_view as expert_messages_view_new, expert_resources_view, expert_requests_view, expert_request_detail, expert_upload_document, expert_update_request_status, expert_schedule_appointment, expert_update_appointment, expert_take_request
 
 # Import admin views for frontend URLs
 from custom_requests.admin_views import (

@@ -155,11 +155,11 @@
               <tr class="{% if not msg.is_read %}table-warning{% endif %}">
                 <td>{{ msg.sent_at|date:"d/m/Y H:i" }}</td>
                 <td>{{ msg.sender.first_name }} {{ msg.sender.name }}</td>
-                <td>{{ msg.receiver.first_name }} {{ msg.receiver.name }}</td>
+                <td>{{ msg.recipient.first_name }} {{ msg.recipient.name }}</td>
                 <td>{{ msg.content|truncatechars:50 }}</td>
                 <td>
                   {% if msg.service_request %}
-                    <a href="#" class="link-primary">{{ msg.service_request.service.name|truncatechars:20 }}</a>
+                    <a href="#" class="link-primary">{{ msg.service_request.service.title|truncatechars:20 }}</a>
                   {% else %}
                     N/A
                   {% endif %}
@@ -172,7 +172,7 @@
                   {% endif %}
                 </td>
                 <td>
-                  <button type="button" class="btn btn-sm btn-primary view-message" data-bs-toggle="modal" data-bs-target="#messageModal" data-message-id="{{ msg.id }}" data-message-content="{{ msg.content }}" data-sender="{{ msg.sender.first_name }} {{ msg.sender.name }}" data-receiver="{{ msg.receiver.first_name }} {{ msg.receiver.name }}" data-date="{{ msg.sent_at|date:'d/m/Y H:i' }}">
+                  <button type="button" class="btn btn-sm btn-primary view-message" data-bs-toggle="modal" data-bs-target="#messageModal" data-message-id="{{ msg.id }}" data-message-content="{{ msg.content }}" data-sender="{{ msg.sender.first_name }} {{ msg.sender.name }}" data-receiver="{{ msg.recipient.first_name }} {{ msg.recipient.name }}" data-date="{{ msg.sent_at|date:'d/m/Y H:i' }}">
                     <i class="bi bi-eye"></i>
                   </button>
                 </td>

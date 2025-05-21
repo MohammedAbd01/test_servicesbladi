@@ -228,12 +228,32 @@ def expert_request_detail(request, request_id):
         print(f"Expert assigned: {service_request.expert}")
         print(f"Current user: {request.user}")
         
-        # Simple direct render - skip all other queries for troubleshooting
+        # Get client information including phone number
+        client = get_object_or_404(Utilisateur, id=service_request.client.id)
+        print(f"Client phone: {client.phone}")
+        
+        # Get service type information
+        service = service_request.service
+        service_type = service.service_type if hasattr(service, 'service_type') else None
+        print(f"Service type: {service_type}")
+        
+        # Get documents for this service request
+        documents = Document.objects.filter(service_request=service_request).order_by('-upload_date')
+        print(f"Found {documents.count()} documents for this request")
+        
+        # Get messages related to this service request
+        messages_list = Message.objects.filter(service_request=service_request).order_by('sent_at')
+        
+        # Get appointments related to this service request
+        appointments = RendezVous.objects.filter(service_request=service_request).order_by('date_time')
+        
         context = {
             'service_request': service_request,
-            'documents': [],
-            'messages_list': [],
-            'appointments': []
+            'documents': documents,
+            'messages_list': messages_list,
+            'appointments': appointments,
+            'client': client,
+            'service_type': service_type
         }
         
         return render(request, 'expert/request_detail.html', context)

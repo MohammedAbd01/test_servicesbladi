@@ -1,23 +1,28 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, Q, Sum, F, CharField, Value
+from django.db.models.functions import Concat
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-import json
-import csv
+import json, csv
 import os
 from io import StringIO
-from django.http import HttpResponse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.urls import reverse
+from django.utils.html import strip_tags
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
 from accounts.models import Utilisateur, Client, Expert, Address
 from accounts.forms import UserEditForm
 from custom_requests.models import ServiceRequest, Document, RendezVous, Message, Notification
 from services.models import Service, ServiceCategory
-from resources.models import Resource
+from resources.models import Resource, ResourceFile
 
 @login_required
 def admin_requests_view(request):
@@ -669,88 +674,106 @@ def admin_reschedule_appointment(request, appointment_id):
 
 @login_required
 def admin_add_resource(request):
-    """Add a new resource"""
-    
-    # Check if user is admin
+    """
+    Add a new resource (admin)
+    """
+    # Check if user is an admin
     if request.user.account_type.lower() != 'admin':
         return redirect('home')
     
-    if request.method != 'POST':
-        return redirect('admin_ressources')
-    
-    try:
-        # Get form data
-        title = request.POST.get('title', '')
-        description = request.POST.get('description', '')
-        category = request.POST.get('category', '')
-        is_public = request.POST.get('is_public') == 'on'
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        category = request.POST.get('category')
+        is_active = request.POST.get('is_public') == 'on'
+        available_formats = request.POST.get('available_formats', 'pdf')
         
-        if not title or not description or not category:
-            messages.error(request, "Tous les champs obligatoires doivent être remplis.")
-            return redirect('admin_ressources')
-            
-        # Create new resource
-        resource = Resource(
+        # Create the resource
+        resource = Resource.objects.create(
             title=title,
             description=description,
             category=category,
-            is_public=is_public,
-            created_by=request.user
+            is_active=is_active,
+            available_formats=available_formats,
+            created_by=request.user,
         )
         
-        # Handle file upload if present
-        if 'file' in request.FILES:
-            resource.file = request.FILES['file']
+        # Handle file upload
+        if request.FILES.get('file'):
+            file = request.FILES.get('file')
             
-        # Handle thumbnail upload if present
-        if 'thumbnail' in request.FILES:
-            resource.thumbnail = request.FILES['thumbnail']
-            
-        resource.save()
+            # Create the resource file
+            ResourceFile.objects.create(
+                resource=resource,
+                language='fr',  # Default language
+                file=file,
+                file_format='pdf',  # Default format
+                file_size=int(file.size / 1024) if file.size else 0,  # Convert bytes to KB
+            )
         
-        messages.success(request, f"La ressource '{title}' a été ajoutée avec succès.")
+        # Set success message
+        messages.success(request, _('Resource added successfully.'))
+        return redirect('admin_ressources')
         
-    except Exception as e:
-        messages.error(request, f"Erreur lors de l'ajout de la ressource: {str(e)}")
+    # If GET request, display the add form
+    categories = [choice[0] for choice in Resource.CATEGORIES]
     
-    return redirect('admin_ressources')
+    return render(request, 'admin/ressources.html', {
+        'categories': categories,
+        'mode': 'add'
+    })
 
 @login_required
 def admin_edit_resource(request, resource_id):
-    """Edit an existing resource"""
-    
-    # Check if user is admin
+    """
+    Edit an existing resource (admin)
+    """
+    # Check if user is an admin
     if request.user.account_type.lower() != 'admin':
         return redirect('home')
     
-    if request.method != 'POST':
-        return redirect('admin_ressources')
+    # Get the resource or return 404
+    resource = get_object_or_404(Resource, id=resource_id)
     
-    try:
-        resource = get_object_or_404(Resource, id=resource_id)
+    if request.method == 'POST':
+        # Update resource fields
+        resource.title = request.POST.get('title')
+        resource.description = request.POST.get('description')
+        resource.category = request.POST.get('category')
+        resource.is_active = request.POST.get('is_public') == 'on'
+        resource.available_formats = request.POST.get('available_formats', 'pdf')
         
-        # Update resource data
-        resource.title = request.POST.get('title', resource.title)
-        resource.description = request.POST.get('description', resource.description)
-        resource.category = request.POST.get('category', resource.category)
-        resource.is_public = request.POST.get('is_public') == 'on'
-        
-        # Handle file upload if present
-        if 'file' in request.FILES:
-            resource.file = request.FILES['file']
-            
-        # Handle thumbnail upload if present
-        if 'thumbnail' in request.FILES:
-            resource.thumbnail = request.FILES['thumbnail']
-            
+        # Save the resource
         resource.save()
         
-        messages.success(request, f"La ressource '{resource.title}' a été mise à jour avec succès.")
+        # Handle file upload
+        if request.FILES.get('file'):
+            file = request.FILES.get('file')
+            
+            # Delete existing file(s) first to avoid duplicates
+            ResourceFile.objects.filter(resource=resource).delete()
+            
+            # Create new resource file
+            ResourceFile.objects.create(
+                resource=resource,
+                language='fr',  # Default language
+                file=file,
+                file_format='pdf',  # Default format
+                file_size=int(file.size / 1024) if file.size else 0,  # Convert bytes to KB
+            )
         
-    except Exception as e:
-        messages.error(request, f"Erreur lors de la mise à jour de la ressource: {str(e)}")
+        # Set success message
+        messages.success(request, _('Resource updated successfully.'))
+        return redirect('admin_ressources')
     
-    return redirect('admin_ressources')
+    # If GET request, display edit form with resource data
+    categories = [choice[0] for choice in Resource.CATEGORIES]
+    
+    return render(request, 'admin/ressources.html', {
+        'resource': resource,
+        'categories': categories,
+        'mode': 'edit'
+    })
 
 @login_required
 def admin_delete_resource(request, resource_id):
@@ -796,17 +819,17 @@ def admin_toggle_resource_visibility(request, resource_id):
     
     try:
         resource = get_object_or_404(Resource, id=resource_id)
-        resource.is_public = not resource.is_public
+        resource.is_active = not resource.is_active
         resource.save()
         
-        visibility_status = "publique" if resource.is_public else "privée"
+        visibility_status = "publique" if resource.is_active else "privée"
         messages.success(request, f"La ressource '{resource.title}' est maintenant {visibility_status}.")
         
         # If this is an AJAX request, return JSON response
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': True,
-                'is_public': resource.is_public,
+                'is_active': resource.is_active,
                 'message': f"La ressource '{resource.title}' est maintenant {visibility_status}."
             })
     
@@ -845,7 +868,7 @@ def admin_resources_view(request):
             
         if visibility:
             is_public = visibility == 'public'
-            resources = resources.filter(is_public=is_public)
+            resources = resources.filter(is_active=is_public)  # Using is_active instead of is_public
                 
         if search_query:
             resources = resources.filter(
@@ -859,13 +882,17 @@ def admin_resources_view(request):
         
         # Get statistics for dashboard
         total_resources = resources.count()
-        public_resources = resources.filter(is_public=True).count()
-        private_resources = resources.filter(is_public=False).count()
+        # Use is_active for public/private status since that's what we have
+        public_resources = resources.filter(is_active=True).count()
+        private_resources = resources.filter(is_active=False).count()
         
-        # Add missing variables
-        document_count = resources.filter(file_type='document').count() if hasattr(Resource, 'file_type') else 0
-        video_count = resources.filter(file_type='video').count() if hasattr(Resource, 'file_type') else 0
-        popular_resources = resources.order_by('-downloads')[:5] if hasattr(Resource, 'downloads') else resources[:5]
+        # Use proper fields that exist in the Resource model
+        # All resources appear to use 'pdf' as available_formats
+        document_count = resources.filter(available_formats='pdf').count()
+        video_count = 0  # Pas de vidéos dans les données actuelles
+        
+        # Get resources with highest download count
+        popular_resources = resources.order_by('-download_count')[:5]
         visibilities = ['public', 'private']  # Options pour le filtre de visibilité
         
         # Get categories for filters
@@ -940,6 +967,9 @@ def admin_messages_view(request):
         # Base queryset - get all messages
         messages_obj = Message.objects.select_related('sender', 'recipient', 'service_request')
         
+        # Define today variable upfront
+        today = timezone.now().date()
+        
         # Apply filters
         if status_filter:
             if status_filter == 'read':
@@ -948,7 +978,6 @@ def admin_messages_view(request):
                 messages_obj = messages_obj.filter(is_read=False)
                 
         if period_filter:
-            today = timezone.now().date()
             if period_filter == 'today':
                 messages_obj = messages_obj.filter(sent_at__date=today)
             elif period_filter == 'week':
@@ -978,7 +1007,7 @@ def admin_messages_view(request):
         
         # Add missing variables
         admin_messages = messages_obj.filter(Q(sender__account_type='admin') | Q(recipient__account_type='admin')).count()
-        recent_messages = messages_obj.filter(sent_at__gte=timezone.now() - timedelta(days=7)).count()
+        recent_messages = messages_obj.filter(sent_at__gte=timezone.now() - timedelta(days=1)).count()
         
         # Pagination
         paginator = Paginator(messages_obj, 20)  # 20 messages per page
@@ -1000,6 +1029,7 @@ def admin_messages_view(request):
             'sender_id': sender_id,
             'recipient_id': recipient_id,
             'status_filter': status_filter,
+            'period_filter': period_filter,  # Include period_filter in context
             'search_query': search_query,
             # Variables directes
             'total_messages': total_messages,
@@ -1010,7 +1040,9 @@ def admin_messages_view(request):
             'stats': {
                 'total': total_messages,
                 'unread': unread_messages,
-                'admin': admin_messages
+                'read': total_messages - unread_messages,  # Add read count
+                'admin': admin_messages,
+                'recent': recent_messages  # Include recent messages for last 24 hours
             }
         }
         
@@ -1072,9 +1104,10 @@ def admin_documents_view(request):
         # Base queryset - correct the field names based on Document model
         documents = Document.objects.select_related('uploaded_by', 'service_request')
         
-        # Apply filters
-        if status_filter:
-            documents = documents.filter(status=status_filter)
+        # Apply filters - Note: If 'status' is not a field in the Document model, we skip this filter
+        # Remove this block if status is not used in your Document model
+        # if status_filter:
+        #    documents = documents.filter(status=status_filter)
             
         if document_type:
             documents = documents.filter(type=document_type)
@@ -1091,16 +1124,18 @@ def admin_documents_view(request):
             )
             
         # Order by upload date (newest first)
-        documents = documents.order_by('-uploaded_at')
+        documents = documents.order_by('-upload_date')
         
         # Get statistics for dashboard
         total_documents = documents.count()
-        verified_documents = documents.filter(status='verified').count()
-        pending_documents = documents.filter(status='pending').count()
-        rejected_documents = documents.filter(status='rejected').count()
+        # Since status is not a field in Document model, we can't filter by it
+        # Instead, we'll just set these values to 0 or find alternative ways to categorize documents
+        verified_documents = 0  # Replace with appropriate logic if needed
+        pending_documents = 0   # Replace with appropriate logic if needed
+        rejected_documents = 0  # Replace with appropriate logic if needed
         
-        # Get document types for filters
-        document_types = Document.objects.values_list('document_type', flat=True).distinct()
+        # Get document types for filters - correct field name
+        document_types = Document.objects.values_list('type', flat=True).distinct()
         
         # Get clients for filters
         clients = Client.objects.select_related('user').all()

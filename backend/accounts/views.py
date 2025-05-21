@@ -432,7 +432,7 @@ def edit_profile_view(request):
 
     if request.method == 'POST':
         if 'update_profile' in request.POST:  # Identifier for profile form
-            user_form = UserEditForm(request.POST, instance=user)
+            user_form = UserEditForm(request.POST, request.FILES, instance=user)
             if user_form.is_valid():
                 user_form.save()
                 # Update or create address
@@ -779,49 +779,39 @@ def api_update_profile(request):
         }, status=405)
     
     try:
-        import json
-        data = json.loads(request.body)
         user = request.user
         
-        # Update user data
-        user.name = data.get('name', user.name)
-        user.first_name = data.get('first_name', user.first_name)
-        user.phone = data.get('phone', user.phone)
+        # Update user data from form data
+        user.name = request.POST.get('name', user.name)
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.email = request.POST.get('email', user.email)
+        user.phone = request.POST.get('phone', user.phone)
+        user.residence_country = request.POST.get('residence_country', user.residence_country)
+        
+        # Handle profile picture upload
+        if 'profile_picture' in request.FILES:
+            user.profile_picture = request.FILES['profile_picture']
+        
         user.save()
         
-        # Update or create address
-        address_data = data.get('address', {})
-        if address_data:
-            Address.objects.update_or_create(
-                user=user,
-                address_type='HOME',
-                defaults={
-                    'street': address_data.get('street', ''),
-                    'city': address_data.get('city', ''),
-                    'postal_code': address_data.get('postal_code', ''),
-                    'country': address_data.get('country', ''),
-                }
-            )
-        
         # Update additional profile info based on user type
-        profile_data = data.get('profile', {})
         if user.account_type == 'CLIENT':
             Client.objects.update_or_create(
                 user=user,
                 defaults={
-                    'preferred_language': profile_data.get('preferred_language', 'fr'),
+                    'preferred_language': request.POST.get('preferred_language', 'fr'),
                 }
             )
         elif user.account_type == 'EXPERT':
             Expert.objects.update_or_create(
                 user=user,
                 defaults={
-                    'title': profile_data.get('title', ''),
-                    'specialty': profile_data.get('specialty', ''),
-                    'bio': profile_data.get('bio', ''),
-                    'experience_years': profile_data.get('experience_years', 0),
-                    'languages': profile_data.get('languages', 'fr'),
-                    'availability_status': profile_data.get('availability_status', 'AVAILABLE'),
+                    'title': request.POST.get('title', ''),
+                    'specialty': request.POST.get('specialty', ''),
+                    'bio': request.POST.get('bio', ''),
+                    'experience_years': request.POST.get('experience_years', 0),
+                    'languages': request.POST.get('languages', 'fr'),
+                    'availability_status': request.POST.get('availability_status', 'AVAILABLE'),
                 }
             )
         

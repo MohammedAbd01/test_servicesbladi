@@ -36,7 +36,7 @@
         {% if contacts %}
           {% for contact in contacts %}
             <div class="contact-item {% if active_contact.id == contact.user.id %}active{% endif %}" data-contact-id="{{ contact.user.id }}">
-              <img src="{% static 'img/team/team-1.jpg' %}" alt="{{ contact.user.name }}" class="contact-avatar">
+              <img src="{{ contact.user.get_profile_picture_url }}" alt="{{ contact.user.name }}" class="contact-avatar">
               <div class="contact-info">
                 <div class="contact-name">{{ contact.user.name }} {{ contact.user.first_name }}</div>
                 <div class="contact-preview">{{ contact.last_message }}</div>
@@ -53,7 +53,7 @@
           {% endfor %}
         {% else %}
           <div class="contact-item active">
-            <img src="{% static 'img/team/team-1.jpg' %}" alt="Support" class="contact-avatar">
+            <img src="{% static 'img/admin-default.png' %}" alt="Support" class="contact-avatar">
             <div class="contact-info">
               <div class="contact-name">Support ServicesBladi</div>
               <div class="contact-preview">Comment pouvons-nous vous aider?</div>
@@ -72,7 +72,7 @@
             <button class="btn btn-sm btn-outline-secondary me-2 d-lg-none" id="showContacts">
               <i class="bi bi-arrow-left"></i>
             </button>
-            <img src="{% static 'img/team/team-1.jpg' %}" alt="{{ active_contact.name }}" class="chat-avatar">
+            <img src="{{ active_contact.get_profile_picture_url }}" alt="{{ active_contact.name }}" class="chat-avatar">
             <div class="chat-contact-info">
               <div class="chat-contact-name">{{ active_contact.name }} {{ active_contact.first_name }}</div>
               <div class="chat-contact-status">
@@ -450,7 +450,7 @@
     // Check for new messages every 10 seconds
     function checkNewMessages() {
       const activeContact = document.querySelector('.contact-item.active');
-      if (activeContact) {
+      if (activeContact && activeContact.dataset.contactId) {
         const contactId = activeContact.dataset.contactId;
         
         fetch(`{% url 'custom_requests:client_check_messages' %}?contact=${contactId}`, {

@@ -129,22 +129,26 @@ def client_send_message(request, recipient_id):
 def client_check_messages(request):
     """Check for new messages in the current conversation"""
     contact_id = request.GET.get('contact')
-    if not contact_id:
-        return JsonResponse({'success': False})
+    if not contact_id or contact_id == 'undefined':
+        return JsonResponse({'success': False, 'error': 'Invalid contact ID'})
     
-    contact = get_object_or_404(Utilisateur, id=contact_id)
-    
-    # Check for new unread messages from this contact
-    new_messages = Message.objects.filter(
-        sender=contact,
-        recipient=request.user,
-        is_read=False
-    ).exists()
-    
-    return JsonResponse({
-        'success': True,
-        'new_messages': new_messages
-    })
+    try:
+        contact = get_object_or_404(Utilisateur, id=contact_id)
+        
+        # Check for new unread messages from this contact
+        new_messages = Message.objects.filter(
+            sender=contact,
+            recipient=request.user,
+            is_read=False
+        ).exists()
+        
+        return JsonResponse({
+            'success': True,
+            'new_messages': new_messages
+        })
+    except ValueError:
+        # Handle the case where contact_id is not a valid integer
+        return JsonResponse({'success': False, 'error': 'Invalid contact ID format'})
 
 @login_required
 def expert_messages_view(request):
@@ -265,19 +269,23 @@ def expert_check_messages(request):
     """Check for new messages from a client"""
     # Similar implementation to client_check_messages
     client_id = request.GET.get('client')
-    if not client_id:
-        return JsonResponse({'success': False})
+    if not client_id or client_id == 'undefined':
+        return JsonResponse({'success': False, 'error': 'Invalid client ID'})
     
-    client = get_object_or_404(Utilisateur, id=client_id, account_type='client')
-    
-    # Check for new unread messages from this client
-    new_messages = Message.objects.filter(
-        sender=client,
-        recipient=request.user,
-        is_read=False
-    ).exists()
-    
-    return JsonResponse({
-        'success': True,
-        'new_messages': new_messages
-    })
+    try:
+        client = get_object_or_404(Utilisateur, id=client_id, account_type='client')
+        
+        # Check for new unread messages from this client
+        new_messages = Message.objects.filter(
+            sender=client,
+            recipient=request.user,
+            is_read=False
+        ).exists()
+        
+        return JsonResponse({
+            'success': True,
+            'new_messages': new_messages
+        })
+    except ValueError:
+        # Handle the case where client_id is not a valid integer
+        return JsonResponse({'success': False, 'error': 'Invalid client ID format'})

@@ -20,6 +20,46 @@
     font-size: 2.5rem;
     opacity: 0.8;
     }
+    
+  /* Styles pour le bouton de notification */
+  #notificationButton {
+    padding: 0.6rem 0.75rem; 
+    border-radius: 50%; 
+    width: 42px; 
+    height: 42px; 
+    box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2); 
+    transition: all 0.2s ease;
+  }
+  
+  #notificationButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    background-color: var(--bs-primary);
+    color: white;
+    border-color: var(--bs-primary);
+  }
+  
+  #notificationButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+  }
+  
+  /* Animation pour le dropdown */
+  #notificationDropdown {
+    transform-origin: top right;
+    animation: notifFadeIn 0.3s ease forwards;
+  }
+  
+  @keyframes notifFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
   </style>
 {% endblock %}
 
@@ -28,13 +68,64 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Tableau de bord Expert</h2>
         <div>
-          <a href="{% url 'expert_rendezvous' %}" class="btn btn-primary me-2">
-            <i class="bi bi-plus-circle"></i> Nouveau Rendez-vous
+          <a href="{% url 'expert_rendezvous' %}" class="btn btn-primary me-3">
+            <i class="bi bi-plus-circle me-1"></i> Nouveau Rendez-vous
           </a>
-          <button class="btn btn-outline-primary">
-            <i class="bi bi-bell"></i>
-            <span class="badge bg-danger">{{ unread_notifications_count }}</span>
-          </button>
+          <div class="dropdown d-inline-block position-relative">
+            <button class="btn btn-outline-primary position-relative" id="notificationButton" type="button">
+              <i class="bi bi-bell-fill" style="font-size: 1.1rem;"></i>
+              {% if unread_notifications_count > 0 %}
+              <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-circle d-flex align-items-center justify-content-center" style="width: 18px; height: 18px; font-size: 0.65rem; padding: 0; box-shadow: 0 2px 5px rgba(220, 53, 69, 0.3);">{{ unread_notifications_count }}</span>
+              {% endif %}
+            </button>
+            
+            <!-- Notification Dropdown -->
+            <div class="position-absolute shadow-lg rounded-3" id="notificationDropdown" style="display: none; width: 380px; max-height: 450px; overflow-y: auto; z-index: 1050; right: 0; top: 100%; background-color: white; margin-top: 0.75rem; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
+              <!-- Arrow/pointer pointing to the button -->
+              <div style="position: absolute; top: -8px; right: 20px; width: 16px; height: 16px; transform: rotate(45deg); background-color: var(--bs-primary); box-shadow: -3px -3px 5px rgba(0,0,0,0.025);"></div>
+              
+              <div class="p-3 border-bottom bg-primary text-white" style="border-radius: 8px 8px 0 0;">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="m-0 fw-bold"><i class="bi bi-bell me-2"></i>Notifications</h6>
+                  <span class="badge bg-white text-primary px-3 py-1 rounded-pill">{{ unread_notifications_count }} non lue(s)</span>
+                </div>
+              </div>
+              
+              <div class="list-group list-group-flush">
+                {% if notifications %}
+                  {% for notification in notifications %}
+                    <a href="{% url 'custom_requests:mark_notification_read' notification.id %}?redirect_url={% if notification.related_service_request %}{% url 'expert_request_detail' notification.related_service_request.id %}{% elif notification.related_rendez_vous %}{% url 'custom_requests:appointment_detail' notification.related_rendez_vous.id %}{% elif notification.type == 'message' %}{% url 'expert_messages' %}{% else %}{% url 'expert_dashboard' %}{% endif %}" 
+                       class="list-group-item list-group-item-action border-0 p-0">
+                      <div class="px-3 py-3 {% if not notification.is_read %}position-relative overflow-hidden{% endif %}" style="transition: all 0.2s ease;">
+                        {% if not notification.is_read %}
+                          <div class="position-absolute top-0 bottom-0 start-0 d-flex align-items-center">
+                            <div class="bg-primary" style="width: 4px; height: 60%; border-radius: 0 4px 4px 0;"></div>
+                          </div>
+                          <div class="position-absolute top-0 end-0">
+                            <span class="badge bg-primary rounded-0 rounded-bottom-start px-2 py-1 text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">Nouveau</span>
+                          </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-1 {% if not notification.is_read %}ps-3{% endif %}">
+                          <h6 class="mb-0 fw-bold">{{ notification.title }}</h6>
+                          <span class="badge {% if not notification.is_read %}bg-light text-primary{% else %}bg-light text-secondary{% endif %} rounded-pill" style="font-weight: 400; font-size: 0.7rem;">{{ notification.created_at|timesince }}</span>
+                        </div>
+                        
+                        <p class="mb-0 text-muted small {% if not notification.is_read %}ps-3{% endif %}">{{ notification.content }}</p>
+                      </div>
+                    </a>
+                  {% endfor %}
+                {% else %}
+                  <div class="text-center p-5">
+                    <div class="mb-3 rounded-circle bg-light d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                      <i class="bi bi-bell-slash fs-3 text-muted"></i>
+                    </div>
+                    <p class="mb-0 text-muted">Aucune notification</p>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -110,38 +201,10 @@
             </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="dashboard-card">
-            <div class="card-header">
-              <h5 class="mb-0">Notifications <span class="badge bg-danger">{{ unread_notifications_count }}</span></h5>
-            </div>
-            <div class="card-body">
-              <div class="list-group">
-                {% if notifications %}
-                  {% for notification in notifications %}
-                    <div class="list-group-item {% if not notification.is_read %}bg-light{% endif %}">
-                      <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">{{ notification.title }}</h6>
-                        <span class="status-badge {% if not notification.is_read %}status-urgent{% else %}status-active{% endif %}">
-                          {{ notification.created_at|timesince }}
-                        </span>
-                      </div>
-                      <p class="mb-1">{{ notification.content|truncatechars:60 }}</p>
-                    </div>
-                  {% endfor %}
-                {% else %}
-                  <div class="list-group-item">
-                    <p class="mb-1 text-center">Pas de notifications récentes</p>
-                  </div>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Recent Requests and Documents -->
-      <div class="row">
+      <div class="row mt-4">
         <div class="col-md-6">
           <div class="dashboard-card">
             <div class="card-header">
@@ -203,13 +266,111 @@
           </div>
         </div>
       </div>
+      
+      <!-- Tâches à faire -->
+      <div class="row mt-4">
+        <div class="col-12">
+          <div class="dashboard-card">
+            <div class="card-header">
+              <h5 class="mb-0">Tâches à faire</h5>
+              <a href="#" class="btn btn-sm btn-primary">Ajouter</a>
+            </div>
+            <div class="card-body">
+              <div class="list-group">
+                <div class="list-group-item">
+                  <div class="d-flex align-items-center">
+                    <div class="form-check me-3">
+                      <input class="form-check-input" type="checkbox" id="task1">
+                    </div>
+                    <div>
+                      <h6 class="mb-1">Contacter nouveaux clients</h6>
+                      <p class="mb-1 text-muted small">Aujourd'hui</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="list-group-item">
+                  <div class="d-flex align-items-center">
+                    <div class="form-check me-3">
+                      <input class="form-check-input" type="checkbox" id="task2">
+                    </div>
+                    <div>
+                      <h6 class="mb-1">Préparer dossiers consulat</h6>
+                      <p class="mb-1 text-muted small">Demain</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="list-group-item">
+                  <div class="d-flex align-items-center">
+                    <div class="form-check me-3">
+                      <input class="form-check-input" type="checkbox" id="task3">
+                    </div>
+                    <div>
+                      <h6 class="mb-1">Vérifier documents reçus</h6>
+                      <p class="mb-1 text-muted small">Cette semaine</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 {% endblock %}
 
 {% block extra_scripts %}
-  <script>
-    // Initialize AOS
+<script>
+  // Attend que le DOM soit chargé
   document.addEventListener('DOMContentLoaded', function() {
-    // Any dashboard-specific JavaScript
+    // Récupère les éléments
+    const notificationButton = document.getElementById('notificationButton');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    
+    // Fonction pour afficher/cacher le dropdown de notifications
+    notificationButton.addEventListener('click', function(e) {
+      // Empêche l'événement de se propager
+      e.stopPropagation();
+      
+      // Inverse l'état d'affichage du dropdown
+      if (notificationDropdown.style.display === 'block') {
+        notificationDropdown.style.display = 'none';
+      } else {
+        notificationDropdown.style.display = 'block';
+      }
+    });
+    
+    // Ferme le dropdown quand on clique ailleurs
+    document.addEventListener('click', function(e) {
+      if (notificationDropdown.style.display === 'block') {
+        notificationDropdown.style.display = 'none';
+      }
+    });
+    
+    // Empêche la fermeture quand on clique dans le dropdown
+    notificationDropdown.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
   });
-  </script>
+</script>
+
+<script>
+  // Script pour les tâches
+  document.addEventListener('DOMContentLoaded', function() {
+    // Gérer les cases à cocher des tâches
+    const taskCheckboxes = document.querySelectorAll('.form-check-input');
+    
+    taskCheckboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        const taskTitle = this.closest('.d-flex').querySelector('h6');
+        
+        if (this.checked) {
+          taskTitle.style.textDecoration = 'line-through';
+          taskTitle.style.opacity = '0.6';
+        } else {
+          taskTitle.style.textDecoration = 'none';
+          taskTitle.style.opacity = '1';
+        }
+      });
+    });
+  });
+</script>
 {% endblock %} 

@@ -95,6 +95,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      color: inherit;
     }
     
     .notification-item:hover {
@@ -104,6 +105,20 @@
     .notification-item.unread {
       background: #f8f9fa;
       border-left: 4px solid #007bff;
+    }
+    
+    .notification-item.unread .unread-indicator {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background-color: #007bff;
+      transition: opacity 0.5s ease;
+    }
+    
+    .notification-item.unread.read-transition .unread-indicator {
+      opacity: 0;
     }
     
     .notification-item .service {
@@ -160,11 +175,24 @@
       position: relative;
       margin-right: 20px;
       cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
     }
     
-    .notification-bell i {
-      font-size: 1.5rem;
-      color: #666;
+    .notification-bell:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .notification-bell:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
     
     .notification-badge {
@@ -182,25 +210,247 @@
       justify-content: center;
     }
     
+    /* Notification Dropdown */
     .notification-dropdown {
       position: absolute;
       top: 100%;
       right: 0;
       background: white;
       border-radius: 8px;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
       width: 400px;
-      max-height: 500px;
+      max-height: 380px;
       overflow-y: auto;
-      z-index: 1000;
+      z-index: 9999;
       display: none;
       margin-top: 10px;
     }
     
     .notification-dropdown.show {
-      display: block;
+      display: block !important;
     }
-
+    
+    .notification-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: 10px;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid white;
+    }
+    
+    .notification-header {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      background: var(--primary-color);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    
+    .notification-header h6 {
+      margin: 0;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .notification-header .badge {
+      background-color: white !important;
+      color: var(--primary-color) !important;
+    }
+    
+    .notification-list {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    
+    .notification-item {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      transition: background 0.3s;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      color: inherit;
+    }
+    
+    .notification-item:hover {
+      background: #f8f9fa;
+    }
+    
+    .notification-item.unread {
+      background: #f8f9fa;
+      border-left: 4px solid #007bff;
+    }
+    
+    .notification-item.unread .unread-indicator {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background-color: #007bff;
+      transition: opacity 0.5s ease;
+    }
+    
+    .notification-item.unread.read-transition .unread-indicator {
+      opacity: 0;
+    }
+    
+    .notification-item .service {
+      font-weight: 600;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .notification-item .message {
+      color: #666;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    
+    .notification-item .time {
+      color: #999;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .notification-item .time i {
+      font-size: 0.9rem;
+    }
+    
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .status-en_attente, .status-new, .status-pending_info { background: #fff3cd; color: #856404; }
+    .status-en_cours, .status-in_progress { background: #cce5ff; color: #004085; }
+    .status-termine, .status-completed { background: #d4edda; color: #155724; }
+    .status-annule, .status-cancelled, .status-rejected { background: #f8d7da; color: #721c24; }
+    
+    .notification-empty {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    }
+    
+    .notification-empty i {
+      font-size: 2rem;
+      color: #ddd;
+      margin-bottom: 10px;
+    }
+    
+    .notification-bell {
+      position: relative;
+      margin-right: 20px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .notification-bell:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .notification-bell:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .notification-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      width: 400px;
+      max-height: 380px;
+      overflow-y: auto;
+      z-index: 9999;
+      display: none;
+      margin-top: 10px;
+    }
+    
+    .notification-dropdown.show {
+      display: block !important;
+    }
+    
+    .notification-dropdown::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: 10px;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid white;
+    }
+    
+    .notification-header {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      background: var(--primary-color);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+    
+    .notification-header h6 {
+      margin: 0;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .notification-header .badge {
+      background-color: white !important;
+      color: var(--primary-color) !important;
+    }
+    
+    /* Notification Button Styles */
+    .notification-bell {
+      position: relative;
+      margin-right: 20px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+    
+    .notification-bell:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .notification-bell:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
     .dashboard-wrapper {
       display: flex;
       min-height: 100vh;
@@ -479,6 +729,17 @@
       font-size: 0.95rem;
       margin-bottom: 0;
     }
+
+    /* Fix pour le dropdown de notifications */
+    .notification-dropdown-fix.dropdown-menu {
+      position: absolute !important;
+      top: 100% !important;
+      left: auto !important;
+      right: 0 !important;
+      transform: none !important;
+      margin-top: 10px !important;
+      z-index: 9999 !important;
+    }
   </style>
 </head>
 
@@ -490,9 +751,7 @@
         <h3>MRE</h3>
       </div>
       <div class="sidebar-profile">
-        <div class="profile-icon">
-          <i class="bi bi-person-circle"></i>
-        </div>
+        <img src="{{ user.get_profile_picture_url }}" alt="Photo de profil" class="rounded-circle border border-2 border-white" style="width: 80px; height: 80px; object-fit: cover;">
         <h5 class="text-white">{{ user.name }} {{ user.first_name }}</h5>
         <p class="text-white-50">Client</p>
       </div>
@@ -537,9 +796,9 @@
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Tableau de bord</h2>
-        <div>
-          <div class="dropdown d-inline-block">
-            <button class="btn btn-primary me-2 dropdown-toggle" type="button" id="newRequestDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <div class="d-flex align-items-center">
+          <div class="dropdown me-3">
+            <button class="btn btn-primary dropdown-toggle" type="button" id="newRequestDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-plus-circle"></i> Nouvelle demande
             </button>
             <ul class="dropdown-menu" aria-labelledby="newRequestDropdown">
@@ -554,63 +813,45 @@
               {% endfor %}
             </ul>
           </div>
-          <button class="btn btn-outline-primary notification-bell" onclick="toggleNotifications()">
-            <i class="bi bi-bell"></i>
-            <span class="badge bg-danger notification-badge">{{ unread_notifications_count|default:"3" }}</span>
-          </button>
-          <div class="notification-dropdown" id="notificationDropdown">
-            <div class="notification-header">
-              <div class="d-flex justify-content-between align-items-center">
-                <h6>Notifications</h6>
-                <span class="badge bg-primary">{{ unread_notifications_count|default:"3" }} non lue(s)</span>
+          <div class="dropdown position-relative">
+            <button class="btn btn-outline-primary notification-bell" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-bell"></i>
+              {% if unread_notifications_count and unread_notifications_count > 0 %}
+              <span class="badge bg-danger notification-badge">{{ unread_notifications_count }}</span>
+              {% endif %}
+            </button>
+            <div class="dropdown-menu dropdown-menu-end notification-dropdown-fix p-0" aria-labelledby="dropdownMenuButton" style="width: 350px; max-height: 400px; overflow-y: auto;" data-popper-placement="bottom-end">
+              <div class="bg-primary p-3 text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">Notifications</h6>
+                  <span id="unreadBadge" class="badge bg-white text-primary">{{ unread_notifications_count|default:"0" }} non lue(s)</span>
+                </div>
+              </div>
+              <div class="list-group list-group-flush">
+                {% if notifications %}
+                  {% for notification in notifications %}
+                  <a href="{% if notification.type == 'SERVICE_REQUEST' %}{% url 'client_demandes' %}{% elif notification.type == 'APPOINTMENT' %}{% url 'client_rendezvous' %}{% elif notification.type == 'MESSAGE' %}{% url 'client_messages' %}{% else %}#{% endif %}" 
+                     class="list-group-item list-group-item-action {% if not notification.is_read %}unread{% endif %}"
+                     onclick="event.preventDefault(); markSingleNotificationAsRead('{{ notification.id }}', this.getAttribute('href'));">
+                    <div class="d-flex justify-content-between">
+                      <h6 class="mb-1">{{ notification.title }}</h6>
+                      <small class="text-muted">{{ notification.created_at|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    <p class="mb-1">{{ notification.content }}</p>
+                    <div>
+                      <span class="badge bg-primary">{{ notification.get_type_display }}</span>
+                      {% if not notification.is_read %}<span class="badge bg-danger">Nouveau</span>{% endif %}
+                    </div>
+                  </a>
+                  {% endfor %}
+                {% else %}
+                  <div class="list-group-item text-center py-4">
+                    <i class="bi bi-bell-slash text-muted mb-3" style="font-size: 2rem;"></i>
+                    <p class="mb-0">Aucune notification pour le moment</p>
+                  </div>
+                {% endif %}
               </div>
             </div>
-            <ul class="notification-list">
-              {% if notifications %}
-                {% for notification in notifications %}
-                  <li class="notification-item {% if not notification.is_read %}unread{% endif %}">
-                    <div class="service">
-                      <span>{{ notification.title }}</span>
-                      <span class="status-badge status-{{ notification.type }}">
-                        {{ notification.get_type_display }}
-                      </span>
-                    </div>
-                    <div class="message">{{ notification.content }}</div>
-                    <div class="time">
-                      <i class="bi bi-clock"></i>
-                      {{ notification.created_at|date:"d/m/Y H:i" }}
-                    </div>
-                  </li>
-                {% endfor %}
-              {% else %}
-                <li class="notification-item unread">
-                  <div class="service">
-                    <span>Services Administratifs</span>
-                    <span class="status-badge status-en_cours">
-                      En cours
-                    </span>
-                  </div>
-                  <div class="message">Votre dossier est en cours de traitement</div>
-                  <div class="time">
-                    <i class="bi bi-clock"></i>
-                    07/05/2025 10:30
-                  </div>
-                </li>
-                <li class="notification-item">
-                  <div class="service">
-                    <span>Immobilier</span>
-                    <span class="status-badge status-termine">
-                      Terminé
-                    </span>
-                  </div>
-                  <div class="message">Votre rendez-vous a été confirmé</div>
-                  <div class="time">
-                    <i class="bi bi-clock"></i>
-                    06/05/2025 15:45
-                  </div>
-                </li>
-              {% endif %}
-            </ul>
           </div>
         </div>
       </div>
@@ -1438,95 +1679,6 @@
   
   <!-- Custom Scripts -->
   <script>
-    // Function to show service request modal (ancien code maintenu pour compatibilité)
-    function showServiceRequestModal(serviceType) {
-      // Remplacer par la nouvelle fonction pour utiliser le formulaire pleine page
-      showServiceRequestForm(serviceType);
-    }
-    
-    // Fonction pour afficher le formulaire de demande de service à pleine page
-    function showServiceRequestForm(serviceType) {
-      console.log('Affichage du formulaire pour le service:', serviceType);
-      
-      const serviceRequestForm = document.getElementById('serviceRequestFullForm');
-      const mainContent = document.querySelector('.main-content');
-      
-      if (!serviceRequestForm) {
-        console.error('Formulaire de service non trouvé!');
-        return;
-      }
-      
-      // Réinitialiser le formulaire
-      document.getElementById('serviceRequestForm').reset();
-      
-      // Cacher tous les champs spécifiques
-      document.querySelectorAll('.service-fields').forEach(field => {
-        field.style.display = 'none';
-      });
-      
-      // Définir le type de service et mettre à jour le formulaire
-      document.getElementById('serviceType').value = serviceType;
-      document.getElementById('formServiceTitle').textContent = serviceType;
-      
-      // Afficher les champs spécifiques en fonction du type
-      let fieldsToShow = '';
-      let serviceDescription = '';
-      
-      switch(serviceType) {
-        case 'Service Administratif':
-        case 'Services Administratifs':
-          fieldsToShow = 'adminFields';
-          serviceDescription = 'Demandez des documents officiels, des attestations ou tout autre service administratif.';
-          break;
-        case 'Service Tourisme':
-        case 'Tourisme':
-          fieldsToShow = 'tourismeFields';
-          serviceDescription = 'Réservations d\'hôtels, circuits touristiques, location de voitures et autres services touristiques.';
-          break;
-        case 'Service Immobilier':
-        case 'Immobilier':
-          fieldsToShow = 'immobilierFields';
-          serviceDescription = 'Services d\'achat, vente, location ou gestion de biens immobiliers.';
-          break;
-        case 'Service Fiscal':
-        case 'Fiscalité':
-          fieldsToShow = 'fiscalFields';
-          serviceDescription = 'Déclarations fiscales, optimisation fiscale, conseils et assistance pour vos impôts.';
-          break;
-        case 'Service Investissement':
-        case 'Investissement':
-          fieldsToShow = 'investissementFields';
-          serviceDescription = 'Conseils et accompagnement pour vos projets d\'investissement au Maroc.';
-          break;
-        default:
-          serviceDescription = 'Veuillez spécifier les détails de votre demande dans la description.';
-      }
-      
-      // Afficher les champs pertinents
-      if (fieldsToShow) {
-        const fieldsElement = document.getElementById(fieldsToShow);
-        if (fieldsElement) {
-          fieldsElement.style.display = 'block';
-        } else {
-          console.error('Élément', fieldsToShow, 'non trouvé!');
-        }
-      }
-      
-      // Définir la description du service
-      document.getElementById('formServiceDescription').textContent = serviceDescription;
-      
-      // Cacher le contenu principal
-      if (mainContent) {
-        mainContent.style.visibility = 'hidden';
-      }
-      
-      // Afficher le formulaire avec animation
-      serviceRequestForm.style.display = 'block';
-      setTimeout(() => {
-        serviceRequestForm.classList.add('show');
-      }, 50);
-    }
-
     // Initialize AOS
     AOS.init({
       duration: 1000,
@@ -1542,26 +1694,27 @@
     
     // Toggle notifications dropdown
     function toggleNotifications() {
-      document.getElementById('notificationDropdown').classList.toggle('show');
-    }
-    
-    // Close notifications dropdown when clicking outside
-    window.addEventListener('click', function(e) {
-      if (!e.target.closest('.notification-bell') && !e.target.closest('.notification-dropdown')) {
-        const dropdown = document.getElementById('notificationDropdown');
-        if (dropdown.classList.contains('show')) {
-          dropdown.classList.remove('show');
-        }
+      console.log("Toggle notifications clicked");
+      const dropdown = document.getElementById('notificationDropdown');
+      if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        dropdown.classList.toggle('show');
+        console.log("Dropdown toggled, display:", dropdown.style.display);
+      } else {
+        console.error("Notification dropdown element not found");
       }
-    });
-    
-    // Function to redirect to create request page (keeping for compatibility)
-    function redirectToCreateRequest(serviceType) {
-      window.location.href = `/client/demandes/nouvelle/${serviceType}`;
     }
     
-    // Profile edit functionality
+    // Empêcher la fermeture du dropdown lorsqu'on clique dessus
     document.addEventListener('DOMContentLoaded', function() {
+      const dropdown = document.getElementById('notificationDropdown');
+      if (dropdown) {
+        dropdown.addEventListener('click', function(event) {
+          event.stopPropagation();
+        });
+      }
+      
+      // Profile edit functionality
       const editProfileBtn = document.getElementById('editProfileBtn');
       const profileEditForm = document.getElementById('profileEditForm');
       const closeProfileForm = document.getElementById('closeProfileForm');
@@ -1698,22 +1851,6 @@
         submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Traitement...';
         submitButton.disabled = true;
         
-        // Function to get CSRF token from cookies
-        function getCookie(name) {
-          let cookieValue = null;
-          if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-              const cookie = cookies[i].trim();
-              if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-              }
-            }
-          }
-          return cookieValue;
-        }
-        
         // Send data to the server
         fetch('/requests/ajax/create-request/', {
           method: 'POST',
@@ -1797,6 +1934,239 @@
         });
       }
     });
+    
+    // Function to show service request modal (ancien code maintenu pour compatibilité)
+    function showServiceRequestModal(serviceType) {
+      // Remplacer par la nouvelle fonction pour utiliser le formulaire pleine page
+      showServiceRequestForm(serviceType);
+    }
+    
+    // Fonction pour afficher le formulaire de demande de service à pleine page
+    function showServiceRequestForm(serviceType) {
+      console.log('Affichage du formulaire pour le service:', serviceType);
+      
+      const serviceRequestForm = document.getElementById('serviceRequestFullForm');
+      const mainContent = document.querySelector('.main-content');
+      
+      if (!serviceRequestForm) {
+        console.error('Formulaire de service non trouvé!');
+        return;
+      }
+      
+      // Réinitialiser le formulaire
+      document.getElementById('serviceRequestForm').reset();
+      
+      // Cacher tous les champs spécifiques
+      document.querySelectorAll('.service-fields').forEach(field => {
+        field.style.display = 'none';
+      });
+      
+      // Définir le type de service et mettre à jour le formulaire
+      document.getElementById('serviceType').value = serviceType;
+      document.getElementById('formServiceTitle').textContent = serviceType;
+      
+      // Afficher les champs spécifiques en fonction du type
+      let fieldsToShow = '';
+      let serviceDescription = '';
+      
+      switch(serviceType) {
+        case 'Service Administratif':
+        case 'Services Administratifs':
+          fieldsToShow = 'adminFields';
+          serviceDescription = 'Demandez des documents officiels, des attestations ou tout autre service administratif.';
+          break;
+        case 'Service Tourisme':
+        case 'Tourisme':
+          fieldsToShow = 'tourismeFields';
+          serviceDescription = 'Réservations d\'hôtels, circuits touristiques, location de voitures et autres services touristiques.';
+          break;
+        case 'Service Immobilier':
+        case 'Immobilier':
+          fieldsToShow = 'immobilierFields';
+          serviceDescription = 'Services d\'achat, vente, location ou gestion de biens immobiliers.';
+          break;
+        case 'Service Fiscal':
+        case 'Fiscalité':
+          fieldsToShow = 'fiscalFields';
+          serviceDescription = 'Déclarations fiscales, optimisation fiscale, conseils et assistance pour vos impôts.';
+          break;
+        case 'Service Investissement':
+        case 'Investissement':
+          fieldsToShow = 'investissementFields';
+          serviceDescription = 'Conseils et accompagnement pour vos projets d\'investissement au Maroc.';
+          break;
+        default:
+          serviceDescription = 'Veuillez spécifier les détails de votre demande dans la description.';
+      }
+      
+      // Afficher les champs pertinents
+      if (fieldsToShow) {
+        const fieldsElement = document.getElementById(fieldsToShow);
+        if (fieldsElement) {
+          fieldsElement.style.display = 'block';
+        } else {
+          console.error('Élément', fieldsToShow, 'non trouvé!');
+        }
+      }
+      
+      // Définir la description du service
+      document.getElementById('formServiceDescription').textContent = serviceDescription;
+      
+      // Cacher le contenu principal
+      if (mainContent) {
+        mainContent.style.visibility = 'hidden';
+      }
+      
+      // Afficher le formulaire avec animation
+      serviceRequestForm.style.display = 'block';
+      setTimeout(() => {
+        serviceRequestForm.classList.add('show');
+      }, 50);
+    }
+    
+    // Fonction pour marquer une notification comme lue et rediriger
+    function markSingleNotificationAsRead(notificationId, redirectUrl) {
+      // Si c'est une notification de démonstration (sans backend), simuler simplement
+      if (notificationId.startsWith('demo')) {
+        // Simuler une notification marquée comme lue
+        const notificationItems = document.querySelectorAll('.notification-item.unread');
+        notificationItems.forEach(item => {
+          if (item.getAttribute('onclick').includes(notificationId)) {
+            item.classList.remove('unread');
+            const newBadge = item.querySelector('.badge.bg-danger');
+            if (newBadge) newBadge.remove();
+            
+            // Mettre à jour les compteurs
+            updateNotificationCounters();
+          }
+        });
+        
+        // Rediriger après un court délai
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, 300);
+        return;
+      }
+      
+      // Pour les vraies notifications (avec backend)
+      fetch('/api/notifications/mark-read/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          notification_id: notificationId,
+          mark_all: false
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Mettre à jour l'interface
+          updateNotificationCounters();
+        }
+        
+        // Rediriger dans tous les cas
+        window.location.href = redirectUrl;
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        // Rediriger quand même en cas d'erreur
+        window.location.href = redirectUrl;
+      });
+    }
+    
+    // Fonction pour marquer toutes les notifications comme lues
+    function markNotificationsAsRead() {
+      const unreadBadge = document.getElementById('unreadBadge');
+      if (!unreadBadge) return;
+      
+      // Pour les notifications de démonstration
+      const demoItems = document.querySelectorAll('.notification-item.unread');
+      demoItems.forEach(item => {
+        item.classList.remove('unread');
+        const newBadge = item.querySelector('.badge.bg-danger');
+        if (newBadge) newBadge.remove();
+      });
+      
+      // Mettre à jour les compteurs de notification
+      updateNotificationCounters();
+      
+      // Appel à l'API pour les vraies notifications
+      fetch('/api/notifications/mark-read/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+          mark_all: true
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          console.error('Erreur lors du marquage des notifications:', data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+      });
+    }
+    
+    // Mettre à jour les compteurs de notification
+    function updateNotificationCounters() {
+      const unreadCount = document.querySelectorAll('.list-group-item-action.unread').length;
+      
+      // Mettre à jour le badge du dropdown
+      const unreadBadge = document.getElementById('unreadBadge');
+      if (unreadBadge) {
+        unreadBadge.textContent = unreadCount + ' non lue(s)';
+      }
+      
+      // Mettre à jour le badge de notification
+      const notificationBadge = document.querySelector('.notification-badge');
+      if (notificationBadge) {
+        if (unreadCount > 0) {
+          notificationBadge.textContent = unreadCount;
+          notificationBadge.style.display = 'flex';
+        } else {
+          notificationBadge.style.display = 'none';
+        }
+      }
+    }
+    
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+    
+    // Close notifications dropdown when clicking outside
+    window.addEventListener('click', function(e) {
+      if (!e.target.closest('.notification-bell') && !e.target.closest('.notification-dropdown')) {
+        const dropdown = document.getElementById('notificationDropdown');
+        if (dropdown.classList.contains('show')) {
+          dropdown.classList.remove('show');
+        }
+      }
+    });
+    
+    // Function to redirect to create request page (keeping for compatibility)
+    function redirectToCreateRequest(serviceType) {
+      window.location.href = `/client/demandes/nouvelle/${serviceType}`;
+    }
   </script>
   
   <style>

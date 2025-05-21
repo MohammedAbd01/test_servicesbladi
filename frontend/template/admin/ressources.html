@@ -218,12 +218,11 @@
             <div class="col-md-4">
               <div class="mb-3">
                 <label for="category" class="form-label">Catégorie</label>
-                <input type="text" class="form-control" id="category" name="category" list="categoryOptions" required>
-                <datalist id="categoryOptions">
+                <select class="form-select" id="category" name="category" required>
                   {% for cat in categories %}
-                  <option value="{{ cat }}">
+                  <option value="{{ cat }}">{{ cat }}</option>
                   {% endfor %}
-                </datalist>
+                </select>
               </div>
             </div>
           </div>
@@ -233,24 +232,10 @@
             <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
           </div>
           
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="file" class="form-label">Fichier (optionnel)</label>
-                <input type="file" class="form-control" id="file" name="file">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="url" class="form-label">URL (optionnel)</label>
-                <input type="url" class="form-control" id="url" name="url">
-              </div>
-            </div>
-          </div>
-          
           <div class="mb-3">
-            <label for="image" class="form-label">Image (optionnel)</label>
-            <input type="file" class="form-control" id="image" name="image">
+            <label for="file" class="form-label">Fichier PDF</label>
+            <input type="file" class="form-control" id="file" name="file" accept=".pdf">
+            <small class="form-text text-muted">Le fichier sera accessible par les utilisateurs qui ont accès à cette ressource.</small>
           </div>
           
           <div class="form-check mb-3">
@@ -505,54 +490,6 @@
         </div>
       </div>
     </main>
-  </div>
-
-  <!-- Modal Ajout Ressource -->
-  <div class="modal fade" id="addResourceModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Nouvelle ressource</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <form>
-            <div class="mb-3">
-              <label class="form-label">Titre</label>
-              <input type="text" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Catégorie</label>
-              <select class="form-select">
-                <option value="guide">Guide</option>
-                <option value="form">Formulaire</option>
-                <option value="info">Information</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Description</label>
-              <textarea class="form-control" rows="3"></textarea>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Fichier</label>
-              <input type="file" class="form-control">
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Statut</label>
-              <select class="form-select">
-                <option value="published">Publié</option>
-                <option value="draft">Brouillon</option>
-                <option value="archived">Archivé</option>
-              </select>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          <button type="button" class="btn btn-primary">Créer</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Vendor JS Files -->
