@@ -54,13 +54,13 @@ AUTH_USER_MODEL = 'accounts.Utilisateur'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',  # For internationalization
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'servicesbladi.middleware.MessageMiddleware',  # Custom middleware to handle messages
+    'django.middleware.locale.LocaleMiddleware',
+    'servicesbladi.middleware.CacheControlMiddleware',  # Add our cache control middleware
 ]
 
 ROOT_URLCONF = 'servicesbladi.urls'

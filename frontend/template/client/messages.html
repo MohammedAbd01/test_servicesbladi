@@ -452,16 +452,19 @@
       const activeContact = document.querySelector('.contact-item.active');
       if (activeContact && activeContact.dataset.contactId) {
         const contactId = activeContact.dataset.contactId;
+        // Add timestamp to prevent caching
+        const timestamp = new Date().getTime();
         
-        fetch(`{% url 'custom_requests:client_check_messages' %}?contact=${contactId}`, {
+        fetch(`{% url 'custom_requests:client_check_messages' %}?contact=${contactId}&_=${timestamp}`, {
           headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
           }
         }).then(response => response.json())
           .then(data => {
             if (data.new_messages) {
-              // Reload the page to show new messages
-              window.location.reload();
+              // Reload the page without using cache
+              window.location.reload(true);
             }
           })
           .catch(error => {

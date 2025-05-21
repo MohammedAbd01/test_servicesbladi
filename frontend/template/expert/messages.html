@@ -1,5 +1,6 @@
 {% extends 'expert/base.html' %}
 {% load static %}
+{# Version: {% now "U" %} #}
 
 {% block title %}ServicesBladi - Messagerie Expert{% endblock %}
 {% block meta_description %}Espace expert - Messagerie avec les clients{% endblock %}
@@ -570,12 +571,13 @@
       const clientId = urlParams.get('client');
       
       if (clientId) {
-        // Get the last message time to only fetch newer messages
-        const lastMessageTime = document.querySelector('.message:last-child .message-time');
+        // Add timestamp to prevent caching
+        const timestamp = new Date().getTime();
         
-        fetch(`{% url 'custom_requests:expert_check_messages' %}?client=${clientId}`, {
+        fetch(`{% url 'custom_requests:expert_check_messages' %}?client=${clientId}&_=${timestamp}`, {
           headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache, no-store, must-revalidate'
           }
         }).then(response => {
           if (!response.ok) {
@@ -586,16 +588,16 @@
         .then(data => {
           if (data.new_messages) {
             // Instead of reloading the page, fetch the most recent messages
-            fetch(`{% url 'expert_messages' %}?client=${clientId}&ajax=true`, {
+            fetch(`{% url 'expert_messages' %}?client=${clientId}&ajax=true&_=${timestamp}`, {
               headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Requested-With': 'XMLHttpRequest',
+                'Cache-Control': 'no-cache, no-store, must-revalidate'
               }
             })
             .then(response => response.text())
             .then(html => {
-              // Quick approach: reload the page but avoid full page refresh
-              // This is more efficient than a complete reload
-              window.location.reload();
+              // Reload the page without using cache
+              window.location.reload(true);
             })
             .catch(error => {
               console.error('Error fetching new messages:', error);
